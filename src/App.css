@@ -1,0 +1,101 @@
+body {
+  margin: 0;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  min-height: 100vh;
+}
+
+.app-shell {
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+  padding-bottom: 64px;
+}
+
+.page {
+  padding: 16px;
+  animation: fadeUp 0.25s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== COLOR TOKENS ===== */
+:root {
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --gold-pale: #f5edd0;
+  --cream: #f5f0e8;
+  --navy: #1c1c2e;
+  --navy-mid: #2a2a40;
+  --navy-light: #3a3a55;
+
+  /* Light mode (default) */
+  --bg-primary: var(--cream);
+  --bg-card: #ffffff;
+  --bg-input: #faf7f2;
+  --text-primary: #1c1c2e;
+  --text-secondary: #6b6b7b;
+  --text-accent: var(--gold);
+  --border-color: #e8e0d0;
+  --success: #2d7a4f;
+  --danger: #c0392b;
+  --nav-bg: #ffffff;
+  --nav-border: #ede8df;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* Extra vars used by Orders page */
+  --success-dim: rgba(45, 122, 79, 0.12);
+  --danger-dim: rgba(192, 57, 43, 0.1);
+  --gold-dim: rgba(184, 134, 11, 0.12);
+  --gold-glow: rgba(184, 134, 11, 0.3);
+  --wa-color: #128c3e;
+  --wa-dim: rgba(18, 140, 62, 0.1);
+  --wa-border: rgba(18, 140, 62, 0.25);
+  --bg-overlay: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] {
+  --bg-primary: var(--navy);
+  --bg-card: var(--navy-mid);
+  --bg-input: var(--navy-light);
+  --text-primary: #e0e0f0;
+  --text-secondary: #9999bb;
+  --text-accent: var(--gold-light);
+  --border-color: var(--navy-light);
+  --success: #5cc08a;
+  --danger: #e07070;
+  --nav-bg: var(--navy-mid);
+  --nav-border: var(--navy-light);
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+  /* Extra vars — dark versions */
+  --gold: #c9943a;
+  --gold-light: #e8c47a;
+  --gold-pale: rgba(201, 148, 58, 0.15);
+  --gold-glow: rgba(201, 148, 58, 0.35);
+  --success-dim: rgba(92, 192, 138, 0.15);
+  --danger-dim: rgba(224, 112, 112, 0.15);
+  --gold-dim: rgba(201, 148, 58, 0.13);
+  --wa-color: #25d366;
+  --wa-dim: rgba(37, 211, 102, 0.1);
+  --wa-border: rgba(37, 211, 102, 0.25);
+  --bg-overlay: rgba(5, 12, 22, 0.75);
+}
+
+* {
+  transition:
+    background-color 0.25s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}

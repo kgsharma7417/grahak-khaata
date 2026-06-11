@@ -1,0 +1,984 @@
+/* ═══════════════════════════════════════════════════════
+   Orders.css — Theme-aware (uses theme.css CSS variables)
+   Works with data-theme="dark" and data-theme="light"
+   ═══════════════════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap");
+
+/* ── Local shorthand vars (map to theme.css globals) ── */
+.ord-page {
+  --ord-bg: var(--bg-primary);
+  --ord-card: var(--bg-card);
+  --ord-card-hover: var(--bg-card);
+  --ord-border: var(--border-color);
+  --ord-input-bg: var(--bg-input);
+  --ord-modal-bg: var(--bg-card);
+  --ord-t1: var(--text-primary);
+  --ord-t2: var(--text-secondary);
+  --ord-t3: var(--text-secondary);
+  --ord-gold: var(--gold);
+  --ord-ord-gold-l: var(--gold-light);
+  --ord-gold-pale: var(--gold-pale);
+  --ord-green: var(--success);
+  --ord-green-dim: rgba(45, 122, 79, 0.12);
+  --ord-red: var(--danger);
+  --ord-red-dim: rgba(192, 57, 43, 0.1);
+  --ord-shadow: var(--shadow);
+  --ord-modal-sh: var(--shadow);
+  --ord-btn-sh: 0 4px 14px rgba(184, 134, 11, 0.3);
+  --ord-wa: #128c3e;
+  --ord-wa-dim: rgba(18, 140, 62, 0.1);
+  --ord-wa-border: rgba(18, 140, 62, 0.25);
+
+  --radius-card: 16px;
+  --radius-btn: 10px;
+  --ff-display: "Playfair Display", Georgia, serif;
+  --ff-body: "DM Sans", system-ui, sans-serif;
+}
+
+/* ── Page ── */
+.ord-page {
+  font-family: var(--ff-body);
+  background: var(--ord-bg);
+  min-height: 100vh;
+  padding: 20px 16px 60px;
+  color: var(--ord-t1);
+  transition:
+    background 0.25s ease,
+    color 0.2s ease;
+}
+
+/* ── Header ── */
+.ord-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.ord-title {
+  font-family: var(--ff-display);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ord-t1);
+  margin: 0 0 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ord-title-icon {
+  color: var(--ord-gold);
+}
+
+.ord-subtitle {
+  font-size: 13px;
+  color: var(--ord-t3);
+  margin: 0;
+  font-weight: 400;
+}
+
+.ord-new-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 20px;
+  background: linear-gradient(
+    135deg,
+    var(--gold) 0%,
+    var(--gold-light) 50%,
+    var(--gold) 100%
+  );
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  color: #1a0e00;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  transition:
+    background-position 0.4s,
+    box-shadow 0.2s,
+    transform 0.15s;
+  box-shadow: var(--ord-btn-sh);
+  white-space: nowrap;
+}
+.ord-new-btn:hover {
+  background-position: 100% 50%;
+  box-shadow: 0 6px 24px rgba(184, 134, 11, 0.3);
+}
+
+/* ── Summary ── */
+.ord-summary {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+@media (min-width: 600px) {
+  .ord-summary {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.ord-stat {
+  background: var(--ord-card);
+  border: 1px solid var(--ord-border);
+  border-radius: 13px;
+  padding: 14px 14px 12px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.25s ease;
+}
+.ord-stat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ord-gold-pale),
+    transparent
+  );
+}
+
+.ord-stat--accent {
+  border-color: rgba(45, 122, 79, 0.12);
+}
+.ord-stat--accent::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--ord-green),
+    transparent
+  );
+}
+.ord-stat--accent .ord-stat-val {
+  color: var(--ord-green);
+}
+
+.ord-stat-label {
+  font-size: 11px;
+  color: var(--ord-t3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.ord-stat-val {
+  font-family: var(--ff-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ord-t1);
+  line-height: 1;
+}
+.ord-stat-sub {
+  font-size: 10.5px;
+  color: var(--ord-t3);
+  margin-top: 4px;
+}
+
+/* ── Search ── */
+.ord-search-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+.ord-search-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ord-t3);
+}
+.ord-search-input {
+  width: 100%;
+  padding: 11px 38px;
+  background: var(--ord-card);
+  border: 1px solid var(--ord-border);
+  border-radius: var(--radius-btn);
+  color: var(--ord-t1);
+  font-family: var(--ff-body);
+  font-size: 13.5px;
+  outline: none;
+  transition:
+    border-color 0.2s,
+    background 0.25s;
+  box-sizing: border-box;
+}
+.ord-search-input::placeholder {
+  color: var(--ord-t3);
+}
+.ord-search-input:focus {
+  border-color: var(--ord-gold);
+}
+.ord-search-clear {
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--ord-t3);
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* ── Filter Tabs ── */
+.ord-filter-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 18px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+.ord-filter-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.ord-filter-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--ord-card);
+  border: 1px solid var(--ord-border);
+  border-radius: 20px;
+  color: var(--ord-t2);
+  font-family: var(--ff-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s;
+}
+.ord-filter-tab:hover {
+  border-color: var(--ord-gold);
+  color: var(--ord-gold-l);
+}
+.ord-filter-tab.active {
+  background: var(--ord-gold-pale);
+  border-color: var(--ord-gold);
+  color: var(--ord-gold-l);
+  font-weight: 600;
+}
+
+.ord-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--border-color);
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ord-t2);
+}
+.ord-filter-tab.active .ord-tab-count {
+  background: var(--ord-gold-pale);
+  color: var(--ord-gold-l);
+}
+
+/* ── Card List ── */
+.ord-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Empty State ── */
+.ord-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--ord-t3);
+}
+.ord-empty p {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--ord-t2);
+}
+.ord-empty span {
+  font-size: 13px;
+}
+
+/* ── Order Card ── */
+.ord-card {
+  background: var(--ord-card);
+  border: 1px solid var(--ord-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--ord-shadow);
+  overflow: hidden;
+  display: flex;
+  position: relative;
+  transition:
+    box-shadow 0.2s,
+    transform 0.15s,
+    background 0.25s;
+}
+.ord-card:hover {
+  background: var(--ord-card-hover);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.ord-card--delivered {
+  border-color: rgba(45, 122, 79, 0.12);
+  opacity: 0.85;
+}
+.ord-card--urgent {
+  border-color: rgba(192, 57, 43, 0.1);
+}
+
+.ord-accent-bar {
+  width: 5px;
+  flex-shrink: 0;
+}
+
+.ord-card-inner {
+  flex: 1;
+  padding: 16px 14px 14px;
+  min-width: 0;
+}
+
+.ord-urgent-ribbon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  background: var(--ord-red-dim);
+  border: 1px solid rgba(192, 57, 43, 0.1);
+  border-radius: 4px;
+  color: var(--ord-red);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.ord-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.ord-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-display);
+  font-size: 15px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.ord-card-name-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.ord-customer-name {
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--ord-t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ord-customer-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 3px;
+}
+.ord-customer-meta span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--ord-t3);
+}
+
+.ord-card-amount-block {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ord-amount-big {
+  font-family: var(--ff-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ord-gold-l);
+  line-height: 1;
+}
+
+.ord-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 5px;
+  white-space: nowrap;
+}
+
+.ord-inner-divider {
+  height: 1px;
+  background: var(--ord-border);
+  margin: 0 0 10px;
+}
+
+.ord-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-bottom: 7px;
+}
+.ord-description {
+  font-size: 13.5px;
+  color: var(--ord-t2);
+  line-height: 1.45;
+  flex: 1;
+}
+
+.ord-date-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--ord-t3);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.ord-date-row strong {
+  color: var(--ord-t2);
+}
+.ord-date--overdue {
+  color: var(--ord-red);
+}
+.ord-date--overdue strong {
+  color: var(--ord-red);
+}
+
+.ord-overdue-badge {
+  padding: 2px 8px;
+  background: var(--ord-red-dim);
+  border: 1px solid rgba(192, 57, 43, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ord-red);
+}
+
+/* ── Payment Progress ── */
+.ord-payment-block {
+  margin-bottom: 10px;
+}
+
+.ord-payment-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.ord-pay-label {
+  font-size: 12px;
+  color: var(--ord-t3);
+  font-weight: 500;
+}
+.ord-pay-label strong {
+  font-weight: 600;
+}
+
+.ord-progress-track {
+  height: 6px;
+  background: var(--ord-border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.ord-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  min-width: 4px;
+}
+.ord-progress-text {
+  font-size: 10.5px;
+  color: var(--ord-t3);
+  text-align: right;
+  margin-top: 3px;
+}
+
+/* ── Notes ── */
+.ord-notes-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 7px 0;
+  color: var(--ord-t3);
+  font-size: 12.5px;
+  font-family: var(--ff-body);
+  cursor: pointer;
+  border-top: 1px solid var(--ord-border);
+  transition: color 0.15s;
+}
+.ord-notes-toggle:hover {
+  color: var(--ord-t2);
+}
+.ord-notes-body {
+  overflow: hidden;
+  font-size: 13px;
+  color: var(--ord-t2);
+  line-height: 1.5;
+  padding: 4px 0 8px;
+}
+
+/* ── Action Buttons ── */
+.ord-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--ord-border);
+}
+
+.ord-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 16px;
+  border: none;
+  border-radius: var(--radius-btn);
+  color: #fff;
+  font-family: var(--ff-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    filter 0.15s,
+    transform 0.1s;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.2);
+}
+.ord-btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.ord-btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: var(--radius-btn);
+  font-family: var(--ff-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.ord-btn--pay {
+  background: var(--ord-green-dim);
+  color: var(--ord-green);
+  border-color: rgba(45, 122, 79, 0.12);
+}
+.ord-btn--pay:hover {
+  filter: brightness(0.93);
+}
+
+.ord-btn--wa {
+  background: var(--ord-wa-dim);
+  color: var(--ord-wa);
+  border-color: var(--ord-wa-border);
+}
+.ord-btn--wa:hover {
+  filter: brightness(0.93);
+}
+
+.ord-btn--edit {
+  background: var(--bg-input);
+  color: var(--ord-t2);
+  border-color: var(--ord-border);
+}
+.ord-btn--edit:hover {
+  background: var(--ord-card-hover);
+  color: var(--ord-t1);
+}
+
+.ord-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-btn);
+  border: 1px solid rgba(192, 57, 43, 0.1);
+  background: var(--ord-red-dim);
+  color: var(--ord-red);
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.ord-btn--del:hover {
+  filter: brightness(0.9);
+}
+
+/* ── Modal Overlay ── */
+.ord-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0;
+  margin-bottom: 70px;
+}
+@media (min-width: 600px) {
+  .ord-overlay {
+    align-items: center;
+    padding: 20px;
+  }
+}
+
+.ord-modal {
+  background: var(--ord-modal-bg);
+  border: 1px solid var(--ord-gold-pale);
+  border-radius: 20px 20px 0 0;
+  box-shadow: var(--ord-modal-sh);
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ord-border) transparent;
+  transition: background 0.25s;
+}
+@media (min-width: 600px) {
+  .ord-modal {
+    border-radius: 20px;
+  }
+}
+
+.ord-modal--sm {
+  max-width: 380px;
+}
+
+.ord-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.ord-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.ord-modal-crown {
+  color: var(--ord-gold);
+}
+.ord-modal-header h3 {
+  font-family: var(--ff-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ord-t1);
+  margin: 0;
+}
+.ord-modal-close {
+  background: var(--bg-input);
+  border: 1px solid var(--ord-border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ord-t2);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ord-modal-close:hover {
+  background: var(--ord-red-dim);
+  color: var(--ord-red);
+}
+
+.ord-section-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--ord-gold);
+  margin: 16px 0 10px;
+}
+
+/* ── Form ── */
+.ord-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 400px) {
+  .ord-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ord-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ord-field label {
+  font-size: 12px;
+  color: var(--ord-t2);
+  font-weight: 500;
+}
+.ord-field input,
+.ord-field textarea {
+  background: var(--ord-input-bg);
+  border: 1px solid var(--ord-border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  color: var(--ord-t1);
+  font-family: var(--ff-body);
+  font-size: 13.5px;
+  outline: none;
+  transition:
+    border-color 0.18s,
+    background 0.18s;
+  resize: vertical;
+}
+.ord-field input:focus,
+.ord-field textarea:focus {
+  border-color: var(--ord-gold);
+  background: var(--gold-pale);
+}
+.ord-field input::placeholder,
+.ord-field textarea::placeholder {
+  color: var(--ord-t3);
+}
+
+/* Remaining chip */
+.ord-remaining-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--ord-green-dim);
+  border: 1px solid rgba(45, 122, 79, 0.12);
+  border-radius: 10px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--ord-t2);
+}
+.ord-remaining-chip strong {
+  font-size: 15px;
+  color: var(--ord-green);
+  font-family: var(--ff-display);
+}
+
+/* Priority buttons */
+.ord-priority-row {
+  display: flex;
+  gap: 8px;
+}
+.ord-priority-btn {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--ord-border);
+  border-radius: 9px;
+  color: var(--ord-t2);
+  font-family: var(--ff-body);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+.ord-priority-btn:hover {
+  border-color: var(--ord-gold);
+  color: var(--ord-t1);
+}
+.ord-priority-btn--normal {
+  border-color: rgba(45, 122, 79, 0.12);
+  background: var(--ord-green-dim);
+  color: var(--ord-green);
+}
+.ord-priority-btn--urgent {
+  border-color: rgba(192, 57, 43, 0.1);
+  background: var(--ord-red-dim);
+  color: var(--ord-red);
+}
+
+/* Modal actions */
+.ord-modal-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 18px;
+}
+.ord-btn-save {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px;
+  background: linear-gradient(
+    135deg,
+    var(--gold),
+    var(--gold-light),
+    var(--gold)
+  );
+  background-size: 200% 200%;
+  border: none;
+  border-radius: var(--radius-btn);
+  color: #1a0e00;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-position 0.4s,
+    box-shadow 0.2s;
+  box-shadow: var(--ord-btn-sh);
+}
+.ord-btn-save:hover {
+  background-position: 100% 50%;
+  box-shadow: 0 6px 22px rgba(184, 134, 11, 0.3);
+}
+.ord-btn-cancel {
+  padding: 12px 18px;
+  background: var(--bg-input);
+  border: 1px solid var(--ord-border);
+  border-radius: var(--radius-btn);
+  color: var(--ord-t2);
+  font-family: var(--ff-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ord-btn-cancel:hover {
+  background: var(--ord-card-hover);
+  color: var(--ord-t1);
+}
+
+/* ── Payment Modal ── */
+.ord-pay-summary {
+  background: var(--bg-input);
+  border: 1px solid var(--ord-border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.ord-pay-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 13.5px;
+}
+.ord-pay-row span {
+  color: var(--ord-t3);
+}
+.ord-pay-row strong {
+  color: var(--ord-t1);
+}
+.ord-pay-row .green {
+  color: var(--ord-green);
+}
+.ord-pay-row .red {
+  color: var(--ord-red);
+}
+.ord-pay-row--rem {
+  border-top: 1px solid var(--ord-border);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+/* ── WA Modal ── */
+.ord-wa-subtitle {
+  font-size: 13px;
+  color: var(--ord-t3);
+  margin: 0 0 14px;
+}
+.ord-wa-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ord-wa-option {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  border-radius: 13px;
+  border: 1px solid;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s;
+  width: 100%;
+  background: none;
+}
+.ord-wa-option--ready {
+  background: var(--ord-green-dim);
+  border-color: rgba(45, 122, 79, 0.12);
+  color: var(--ord-green);
+}
+.ord-wa-option--ready:hover {
+  filter: brightness(0.93);
+}
+.ord-wa-option--reminder {
+  background: var(--ord-gold-pale);
+  border-color: var(--gold-pale);
+  color: var(--ord-gold-l);
+}
+.ord-wa-option--reminder:hover {
+  filter: brightness(0.93);
+}
+
+.ord-wa-icon {
+  flex-shrink: 0;
+}
+.ord-wa-text {
+  flex: 1;
+}
+.ord-wa-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.ord-wa-text span {
+  font-size: 12px;
+  opacity: 0.7;
+}
+.ord-wa-arrow {
+  opacity: 0.5;
+  flex-shrink: 0;
+}

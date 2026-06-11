@@ -1,0 +1,941 @@
+/* ── Hindi / Devanagari font — SABSE PEHLE IMPORT KARO ── */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Playfair+Display:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap");
+
+/* ══════════════════════════════════════════════════
+   PRINT STYLES — Hindi text PDF mein sahi aaye
+══════════════════════════════════════════════════ */
+@media print {
+  /* Sirf print area dikhao */
+  body > *:not(.bills-page) {
+    display: none !important;
+  }
+
+  .bills-page {
+    background: #fff !important;
+    color: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Noto Sans Devanagari — Hindi ke liye */
+  * {
+    font-family: "Noto Sans Devanagari", "DM Sans", sans-serif !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Sirf bill history print karo — form section chhupao */
+  .bill-header,
+  .bill-card,
+  .add-product-btn,
+  .bill-history > .history-title {
+    display: none !important;
+  }
+
+  .bill-history {
+    display: block !important;
+  }
+
+  /* History cards print-friendly */
+  .premium-history-card,
+  .history-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    margin-bottom: 16px;
+    background: #fff !important;
+  }
+
+  /* Buttons print mein nahi dikhenge */
+  .phc-action-bar,
+  .bhc-actions,
+  .bhc-btn,
+  .phc-btn,
+  .phc-tool-btn,
+  .bhc-panel {
+    display: none !important;
+  }
+
+  /* Expanded section hamesha visible */
+  .bhc-expanded {
+    display: block !important;
+    height: auto !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   GLOBAL TOKENS
+══════════════════════════════════════════════════ */
+
+/* Girvi page */
+.girvi-page {
+  background: var(--bg-primary) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+}
+
+.girvi-page .rec-card,
+.girvi-page .stat-card,
+.girvi-page .modal,
+.girvi-page .interest-summary,
+.girvi-page .payment-toggle,
+.girvi-page .payment-list {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.girvi-page .search-input,
+.girvi-page .field input,
+.girvi-page .field textarea,
+.girvi-page .pay-input {
+  background: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.girvi-page .rec-name,
+.girvi-page .stat-val,
+.girvi-page .rec-item-name,
+.girvi-page .payment-toggle {
+  color: var(--text-primary) !important;
+}
+
+.girvi-page .rec-meta,
+.girvi-page .stat-label,
+.girvi-page .is-label,
+.girvi-page .field label,
+.girvi-page .girvi-subtitle,
+.girvi-page .rec-notes,
+.girvi-page .rec-rate {
+  color: var(--text-secondary) !important;
+}
+
+/* Bills page — global tokens */
+.bills-page {
+  background-color: var(--bg-primary) !important;
+  background-image: none !important;
+  color: var(--text-primary) !important;
+}
+
+.bills-page .bill-card,
+.bills-page .history-card,
+.bills-page .bhc-panel,
+.bills-page .bhc-expanded {
+  background: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.bills-page .bill-input {
+  background: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+  color-scheme: unset;
+}
+
+.bills-page .bill-input::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+.bills-page .type-row {
+  background: var(--bg-input) !important;
+}
+
+.bills-page .type-btn:not(.active) {
+  color: var(--text-secondary) !important;
+}
+
+.bills-page .card-title,
+.bills-page .history-title,
+.bills-page .bhc-name,
+.bills-page .bhc-item-name,
+.bills-page .summary-row .value {
+  color: var(--text-primary) !important;
+}
+
+.bills-page .bill-subtitle,
+.bills-page .input-label,
+.bills-page .summary-row .label,
+.bills-page .bhc-meta,
+.bills-page .bhc-pay-date,
+.bills-page .bhc-item-meta,
+.bills-page .bhc-empty {
+  color: var(--text-secondary) !important;
+}
+
+.bills-page .bhc-pay-row,
+.bills-page .bhc-summary-bar {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+}
+
+.bills-page .bhc-btn.icon-btn {
+  background: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* ══════════════════════════════════════════════════
+   CSS VARIABLES
+══════════════════════════════════════════════════ */
+:root {
+  --gold: #b8860b;
+  --gold-light: #f0c040;
+  --gold-dark: #8b6508;
+  --bg-page: #0f0e0c;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --bg-card-hover: rgba(255, 255, 255, 0.08);
+  --bg-input: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(184, 134, 11, 0.6);
+  --text-primary: #f5f0e8;
+  --text-secondary: rgba(245, 240, 232, 0.55);
+  --text-muted: rgba(245, 240, 232, 0.35);
+  --danger: #ff5a5a;
+  --danger-bg: rgba(255, 80, 80, 0.12);
+  --success: #4ade80;
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 28px;
+  --shadow-gold: 0 12px 32px rgba(184, 134, 11, 0.25);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ══════════════════════════════════════════════════
+   PAGE
+══════════════════════════════════════════════════ */
+.bills-page {
+  min-height: 100vh;
+  background-color: #0f0e0c;
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 20% -10%,
+      rgba(184, 134, 11, 0.13) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 100%,
+      rgba(184, 134, 11, 0.08) 0%,
+      transparent 60%
+    );
+  color: #f5f0e8;
+  /* Hindi font pehle, baaki fallback */
+  font-family: "Noto Sans Devanagari", "DM Sans", sans-serif;
+  padding: 32px 20px 80px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* ══════════════════════════════════════════════════
+   BILL HEADER
+══════════════════════════════════════════════════ */
+.bill-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.bill-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bill-title {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #f5f0e8 0%, #f0c040 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bill-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  letter-spacing: 0.5px;
+}
+
+.bill-total-chip {
+  min-width: 100px;
+  height: 54px;
+  padding: 0 20px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--gold), #d4a017);
+  color: #fff !important;
+  font-size: 18px;
+  font-weight: 700;
+  box-shadow: var(--shadow-gold);
+  cursor: default;
+  user-select: none;
+}
+
+/* ══════════════════════════════════════════════════
+   CARDS
+══════════════════════════════════════════════════ */
+.bill-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.bill-card:hover {
+  border-color: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-bottom: 12px;
+}
+
+/* ══════════════════════════════════════════════════
+   FORM ELEMENTS
+══════════════════════════════════════════════════ */
+.bill-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.bill-grid.cols-1 {
+  grid-template-columns: 1fr;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.input-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-left: 4px;
+}
+
+.bill-input {
+  width: 100%;
+  height: 52px;
+  border: 1px solid var(--border);
+  outline: none;
+  border-radius: var(--radius-md);
+  padding: 0 16px;
+  background: var(--bg-input);
+  color: var(--text-primary);
+  font-size: 14px;
+  /* Hindi font pehle */
+  font-family: "Noto Sans Devanagari", "DM Sans", sans-serif;
+  font-weight: 500;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
+  color-scheme: dark;
+}
+
+.bill-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.bill-input:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.13);
+}
+
+.bill-input:focus {
+  border-color: var(--border-focus);
+  background: rgba(184, 134, 11, 0.07);
+  box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.09);
+}
+
+.bill-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) opacity(0.5);
+  cursor: pointer;
+}
+
+/* ══════════════════════════════════════════════════
+   PRODUCT CARD
+══════════════════════════════════════════════════ */
+.product-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.product-index-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-badge {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), #d4a017);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff !important;
+}
+
+.remove-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--danger) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    transform var(--transition);
+}
+
+.remove-btn:hover {
+  background: rgba(255, 80, 80, 0.24);
+  transform: scale(1.08);
+}
+
+.remove-btn:active {
+  transform: scale(0.95);
+}
+
+.type-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--radius-md);
+  padding: 5px;
+}
+
+.type-btn {
+  flex: 1;
+  height: 42px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 700;
+  font-family: "Noto Sans Devanagari", "DM Sans", sans-serif;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
+}
+
+.type-btn.active {
+  background: linear-gradient(135deg, var(--gold), #d4a017);
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(184, 134, 11, 0.35);
+}
+
+.type-btn:not(.active):hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-primary);
+}
+
+.product-total {
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  background: rgba(184, 134, 11, 0.09);
+  border: 1px solid rgba(184, 134, 11, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-total span {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.product-total strong {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold-light);
+  letter-spacing: -0.5px;
+}
+
+/* ══════════════════════════════════════════════════
+   ADD PRODUCT BUTTON
+══════════════════════════════════════════════════ */
+.add-product-btn {
+  width: 100%;
+  height: 54px;
+  border: 1px dashed rgba(184, 134, 11, 0.4);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+  background: rgba(184, 134, 11, 0.05);
+  color: var(--gold-light) !important;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: "Noto Sans Devanagari", "DM Sans", sans-serif;
+  cursor: pointer;
+  transition:
+    background var(--transition),
+    border-color var(--transition),
+    transform var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-product-btn:hover {
+  background: rgba(184, 134, 11, 0.13);
+  border-color: rgba(184, 134, 11, 0.65);
+  transform: translateY(-1px);
+}
+
+.add-product-btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* ══════════════════════════════════════════════════
+   PAYMENT SUMMARY
+══════════════════════════════════════════════════ */
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.summary-row:last-of-type {
+  border-bottom: none;
+}
+
+.summary-row .label {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.summary-row .value {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.summary-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(
+    135deg,
+    rgba(184, 134, 11, 0.18),
+    rgba(212, 160, 23, 0.1)
+  );
+  border: 1px solid rgba(184, 134, 11, 0.25);
+}
+
+.summary-total-row .total-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.summary-total-row .total-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--gold-light);
+  letter-spacing: -0.5px;
+}
+
+.remaining-row {
+  background: rgba(255, 90, 90, 0.07);
+  border-color: rgba(255, 90, 90, 0.22);
+}
+
+.remaining-value {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.generate-btn {
+  width: 100%;
+  height: 58px;
+  border: none;
+  border-radius: var(--radius-md);
+  margin-top: 20px;
+  background: linear-gradient(135deg, var(--gold), #d4a017);
+  color: #fff !important;
+  font-size: 16px;
+  font-weight: 800;
+  font-family: "Noto Sans Devanagari", "DM Sans", sans-serif;
+  cursor: pointer;
+  box-shadow: var(--shadow-gold);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    filter var(--transition);
+  letter-spacing: 0.3px;
+}
+
+.generate-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 40px rgba(184, 134, 11, 0.4);
+  filter: brightness(1.06);
+}
+
+.generate-btn:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* ══════════════════════════════════════════════════
+   DIVIDER & HISTORY
+══════════════════════════════════════════════════ */
+.bill-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0 18px;
+}
+
+.bill-history {
+  margin-top: 28px;
+}
+
+.history-title {
+  margin-bottom: 16px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.empty-text {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Legacy history card (agar purana code ho) */
+.history-card {
+  border-radius: 24px;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.history-card:hover {
+  border-color: rgba(255, 255, 255, 0.13);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+.bill-cleared-banner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(74, 222, 128, 0.12);
+  color: #4ade80 !important;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 18px;
+  border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+/* ══════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════ */
+@media (max-width: 520px) {
+  .bills-page {
+    padding: 20px 14px 60px;
+  }
+  .bill-grid {
+    grid-template-columns: 1fr;
+  }
+  .bill-title {
+    font-size: 26px;
+  }
+  .bill-total-chip {
+    font-size: 15px;
+    height: 46px;
+    min-width: 82px;
+    padding: 0 14px;
+  }
+  .summary-total-row .total-value {
+    font-size: 22px;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   LIGHT MODE
+══════════════════════════════════════════════════ */
+body.light .bills-page {
+  background-color: #f5edd0 !important;
+  background-image:
+    radial-gradient(
+      ellipse 80% 50% at 20% -10%,
+      rgba(184, 134, 11, 0.1) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 60% 40% at 80% 100%,
+      rgba(184, 134, 11, 0.06) 0%,
+      transparent 60%
+    ) !important;
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .bill-title {
+  background: linear-gradient(135deg, #1c1c2e 0%, #b8860b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light .bills-page .bill-subtitle {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .bill-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(184, 134, 11, 0.18) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06) !important;
+  backdrop-filter: blur(14px) !important;
+}
+
+body.light .bills-page .bill-card:hover {
+  border-color: rgba(184, 134, 11, 0.35) !important;
+  box-shadow: 0 12px 28px rgba(184, 134, 11, 0.12) !important;
+}
+
+body.light .bills-page .bill-input {
+  background: #ffffff !important;
+  color: #1c1c2e !important;
+  border-color: rgba(184, 134, 11, 0.22) !important;
+  color-scheme: light;
+}
+
+body.light .bills-page .bill-input::placeholder {
+  color: #9ca3af !important;
+}
+
+body.light .bills-page .bill-input:hover {
+  background: #ffffff !important;
+  border-color: rgba(184, 134, 11, 0.35) !important;
+}
+
+body.light .bills-page .bill-input:focus {
+  border-color: rgba(184, 134, 11, 0.55) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(184, 134, 11, 0.1) !important;
+}
+
+body.light
+  .bills-page
+  .bill-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.5;
+}
+
+body.light .bills-page .input-label {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .card-title,
+body.light .bills-page .history-title {
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .section-label {
+  color: #8b6508 !important;
+}
+
+body.light .bills-page .type-row {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .bills-page .type-btn:not(.active) {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .type-btn:not(.active):hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .product-total {
+  background: rgba(184, 134, 11, 0.07) !important;
+  border-color: rgba(184, 134, 11, 0.2) !important;
+}
+
+body.light .bills-page .product-total span {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .summary-row {
+  border-bottom-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+body.light .bills-page .summary-row .label {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .summary-row .value {
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .bill-divider {
+  background: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light .bills-page .history-card {
+  background: rgba(255, 255, 255, 0.65) !important;
+  border-color: rgba(184, 134, 11, 0.15) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .bills-page .history-card:hover {
+  border-color: rgba(184, 134, 11, 0.3) !important;
+  box-shadow: 0 8px 24px rgba(184, 134, 11, 0.1) !important;
+}
+
+body.light .bills-page .bhc-name {
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .bhc-meta {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .bhc-panel,
+body.light .bills-page .bhc-expanded {
+  border-top-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+body.light .bills-page .bhc-panel-label {
+  color: #8b6508 !important;
+}
+
+body.light .bills-page .bhc-section-title {
+  color: #b8860b !important;
+}
+
+body.light .bills-page .bhc-pay-row {
+  background: rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light .bills-page .bhc-pay-date {
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .bhc-pay-note {
+  color: #9ca3af !important;
+}
+
+body.light .bills-page .bhc-summary-bar {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border-color: rgba(184, 134, 11, 0.15) !important;
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .bhc-item-name {
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .bhc-item-meta,
+body.light .bills-page .bhc-empty {
+  color: #9ca3af !important;
+}
+
+body.light .bills-page .bhc-product-row {
+  border-bottom-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+body.light .bills-page .bhc-btn.icon-btn {
+  background: rgba(0, 0, 0, 0.05) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  color: #6b6b7b !important;
+}
+
+body.light .bills-page .bhc-btn.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.09) !important;
+  color: #1c1c2e !important;
+}
+
+body.light .bills-page .bhc-btn.icon-btn.active {
+  background: rgba(184, 134, 11, 0.12) !important;
+  border-color: rgba(184, 134, 11, 0.3) !important;
+  color: #8b6508 !important;
+}
+
+body.light .bills-page .bhc-form-grid input,
+body.light .bills-page .bhc-form-grid select {
+  background: #ffffff !important;
+  color: #1c1c2e !important;
+  border-color: rgba(184, 134, 11, 0.22) !important;
+}
+
+body.light .bills-page .empty-text {
+  color: #6b6b7b !important;
+}
+
+/* Light mode mein premium-history-card already white hai — override needed for dark cards */
+body.light .bills-page .premium-history-card {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(184, 134, 11, 0.18) !important;
+}

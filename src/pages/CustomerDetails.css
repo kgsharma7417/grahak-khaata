@@ -1,0 +1,178 @@
+/* =========================================
+   CUSTOMER DETAIL PAGE
+========================================= */
+.customer-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 90px;
+}
+
+/* =========================================
+   HERO CARD
+========================================= */
+.customer-hero {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.customer-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold, #b8860b), #d4a017, #e8b84b);
+}
+
+.customer-hero h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.customer-hero p {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.hero-amount {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold, #b8860b);
+}
+
+/* =========================================
+   INFO GRID
+========================================= */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.info-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.info-card:hover {
+  border-color: var(--gold, #b8860b);
+}
+
+.info-card svg {
+  color: var(--gold, #b8860b);
+  flex-shrink: 0;
+}
+
+/* =========================================
+   RECORDS SECTION
+========================================= */
+.customer-records {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.records-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.records-top h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.records-top p {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.records-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* =========================================
+   RECORD CARD
+========================================= */
+.record-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 15px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  transition:
+    border-color 0.2s,
+    transform 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+
+.record-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--gold, #b8860b), #d4a017);
+  border-radius: 3px 0 0 3px;
+}
+
+.record-card:hover {
+  border-color: var(--gold, #b8860b);
+  transform: translateX(2px);
+}
+
+.record-card h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.record-card p {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.record-card strong {
+  color: var(--gold, #b8860b);
+  font-size: 17px;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}

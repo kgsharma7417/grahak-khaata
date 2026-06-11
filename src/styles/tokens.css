@@ -1,0 +1,46 @@
+/* ===== COLOR TOKENS ===== */
+:root {
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --gold-pale: #f5edd0;
+  --cream: #f5f0e8;
+  --navy: #1c1c2e;
+  --navy-mid: #2a2a40;
+  --navy-light: #3a3a55;
+
+  /* Semantic */
+  --bg-primary: var(--cream);
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --text-primary: #1c1c2e;
+  --text-secondary: #6b6b7b;
+  --text-accent: var(--gold);
+  --border-color: #e8e0d0;
+  --success: #2d7a4f;
+  --danger: #c0392b;
+  --nav-bg: #ffffff;
+  --nav-border: #ede8df;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] {
+  --bg-primary: var(--navy);
+  --bg-card: var(--navy-mid);
+  --bg-input: var(--navy-light);
+  --text-primary: #e0e0f0;
+  --text-secondary: #9999bb;
+  --text-accent: var(--gold-light);
+  --border-color: var(--navy-light);
+  --success: #5cc08a;
+  --danger: #e07070;
+  --nav-bg: var(--navy-mid);
+  --nav-border: var(--navy-light);
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  transition:
+    background-color 0.25s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}

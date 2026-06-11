@@ -1,0 +1,223 @@
+/* :root {
+  --text: #6b6375;
+  --text-h: #08060d;
+  --bg: #fff;
+  --border: #e5e4e7;
+  --code-bg: #f4f3ec;
+  --accent: #aa3bff;
+  --accent-bg: rgba(170, 59, 255, 0.1);
+  --accent-border: rgba(170, 59, 255, 0.5);
+  --social-bg: rgba(244, 243, 236, 0.5);
+  --shadow:
+    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+
+  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+
+  font: 18px/145% var(--sans);
+  letter-spacing: 0.18px;
+  color-scheme: light dark;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #9ca3af;
+    --text-h: #f3f4f6;
+    --bg: #16171d;
+    --border: #2e303a;
+    --code-bg: #1f2028;
+    --accent: #c084fc;
+    --accent-bg: rgba(192, 132, 252, 0.15);
+    --accent-border: rgba(192, 132, 252, 0.5);
+    --social-bg: rgba(47, 48, 58, 0.5);
+    --shadow:
+      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+  }
+
+  #social .button-icon {
+    filter: invert(1) brightness(2);
+  }
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  width: 1126px;
+  max-width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  border-inline: 1px solid var(--border);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  font-weight: 500;
+  color: var(--text-h);
+}
+
+h1 {
+  font-size: 56px;
+  letter-spacing: -1.68px;
+  margin: 32px 0;
+  @media (max-width: 1024px) {
+    font-size: 36px;
+    margin: 20px 0;
+  }
+}
+h2 {
+  font-size: 24px;
+  line-height: 118%;
+  letter-spacing: -0.24px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 20px;
+  }
+}
+p {
+  margin: 0;
+}
+
+code,
+.counter {
+  font-family: var(--mono);
+  display: inline-flex;
+  border-radius: 4px;
+  color: var(--text-h);
+}
+
+code {
+  font-size: 15px;
+  line-height: 135%;
+  padding: 4px 8px;
+  background: var(--code-bg);
+} */
+/* ═══════════════════════════════════════════════════════════
+   theme.css — Central theme variables
+   data-theme="dark"  (default)
+   data-theme="light"
+   Import this FIRST in your main index.css or App.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── DARK MODE (default) ─────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  /* Backgrounds */
+  --bg-page: #0f1a2e;
+  --bg-card: #1b2d47;
+  --bg-card-hover: #203252;
+  --bg-input: rgba(255, 255, 255, 0.04);
+  --bg-input-focus: rgba(201, 148, 58, 0.06);
+  --bg-overlay: rgba(5, 12, 22, 0.75);
+
+  /* Borders */
+  --border-color: rgba(255, 255, 255, 0.07);
+  --border-focus: #c9943a;
+
+  /* Text */
+  --text-primary: #f0e9dd;
+  --text-secondary: #9aacbf;
+  --text-dim: #5e758f;
+  --text-accent: #e8c47a;
+
+  /* Gold / Brand */
+  --gold: #c9943a;
+  --gold-light: #e8c47a;
+  --gold-pale: rgba(201, 148, 58, 0.15);
+  --gold-glow: rgba(201, 148, 58, 0.35);
+
+  /* Status */
+  --success: #22c97a;
+  --success-dim: rgba(34, 201, 122, 0.15);
+  --danger: #e05c5c;
+  --danger-dim: rgba(224, 92, 92, 0.15);
+  --warning: #e67e22;
+  --warning-dim: rgba(230, 126, 34, 0.12);
+  --info: #1a7fc1;
+  --info-dim: rgba(26, 127, 193, 0.13);
+
+  /* Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.35), 0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-btn: 0 4px 16px rgba(201, 148, 58, 0.35);
+
+  /* WhatsApp */
+  --wa-color: #25d366;
+  --wa-dim: rgba(37, 211, 102, 0.1);
+  --wa-border: rgba(37, 211, 102, 0.25);
+}
+
+/* ── LIGHT MODE ──────────────────────────────────────────── */
+[data-theme="light"] {
+  /* Backgrounds */
+  --bg-page: #f5f0e8;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fdf8f2;
+  --bg-input: #faf7f2;
+  --bg-input-focus: rgba(201, 148, 58, 0.06);
+  --bg-overlay: rgba(20, 10, 0, 0.45);
+
+  /* Borders */
+  --border-color: #e8dfd0;
+  --border-focus: #c9943a;
+
+  /* Text */
+  --text-primary: #1a1208;
+  --text-secondary: #6b5a42;
+  --text-dim: #a0886a;
+  --text-accent: #8a6420;
+
+  /* Gold / Brand */
+  --gold: #a67828;
+  --gold-light: #c9943a;
+  --gold-pale: rgba(201, 148, 58, 0.12);
+  --gold-glow: rgba(201, 148, 58, 0.25);
+
+  /* Status */
+  --success: #16a34a;
+  --success-dim: rgba(22, 163, 74, 0.12);
+  --danger: #dc2626;
+  --danger-dim: rgba(220, 38, 38, 0.1);
+  --warning: #d97706;
+  --warning-dim: rgba(217, 119, 6, 0.12);
+  --info: #1d6fa4;
+  --info-dim: rgba(29, 111, 164, 0.12);
+
+  /* Shadows */
+  --shadow-card:
+    0 2px 12px rgba(100, 70, 20, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-modal:
+    0 12px 40px rgba(100, 70, 20, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-btn: 0 4px 14px rgba(201, 148, 58, 0.28);
+
+  /* WhatsApp */
+  --wa-color: #128c3e;
+  --wa-dim: rgba(18, 140, 62, 0.1);
+  --wa-border: rgba(18, 140, 62, 0.25);
+}
+
+/* ── BASE RESETS using theme vars ────────────────────────── */
+body {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  transition:
+    background 0.25s ease,
+    color 0.2s ease;
+}

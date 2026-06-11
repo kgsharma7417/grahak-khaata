@@ -1,0 +1,281 @@
+/* ═══════════════════════════════════════════════════════
+   Calculator.css — Premium Jeweller Theme
+   Mobile-first, max-width 430px
+   ═══════════════════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap");
+
+.calculator-page {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px 80px;
+  max-width: 430px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  font-family: "DM Sans", system-ui, sans-serif;
+}
+
+/* ── Header ── */
+.calc-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.calc-header h2 {
+  margin: 0 0 3px;
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calc-header-icon {
+  color: var(--gold);
+}
+
+.calc-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 400;
+}
+
+/* ── Hero Card ── */
+.hero-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  padding: 20px 20px 18px;
+  background: linear-gradient(135deg, #b8860b 0%, #e0aa2e 55%, #b8860b 100%);
+  background-size: 200% 200%;
+  color: #391f02;
+  box-shadow: 0 8px 28px rgba(184, 134, 11, 0.35);
+}
+
+/* Decorative circles */
+.hero-card::before,
+.hero-card::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+.hero-card::before {
+  width: 160px;
+  height: 160px;
+  top: -55px;
+  right: -45px;
+}
+.hero-card::after {
+  width: 90px;
+  height: 90px;
+  bottom: -30px;
+  left: 20px;
+}
+
+.hero-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.65;
+  margin-bottom: 6px;
+}
+
+.hero-amount {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 42px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  margin: 0 0 16px;
+  color: rgb(13, 60, 34);
+}
+
+.hero-divider {
+  height: 1px;
+  background: rgba(26, 14, 0, 0.12);
+  margin: 0 0 14px;
+}
+
+.hero-bottom {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+}
+
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.hero-stat + .hero-stat {
+  border-left: 1px solid rgba(26, 14, 0, 0.12);
+  padding-left: 14px;
+}
+
+.hero-stat-label {
+  /* font-size: 10.5px;
+  font-weight: 500; */
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.hero-stat-val {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* ── Form Card ── */
+.calc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 18px 16px;
+  box-shadow: var(--shadow);
+}
+
+.calc-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gold);
+  margin: 0 0 12px;
+}
+
+.fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+/* ── Fields ── */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+}
+
+.field label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.field input {
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  padding: 0 12px;
+  outline: none;
+  font-size: 14px;
+  font-family: "DM Sans", system-ui, sans-serif;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    np background 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.field input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-pale, rgba(184, 134, 11, 0.12));
+}
+
+.field input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+.field small {
+  color: var(--text-secondary);
+  font-size: 10.5px;
+  opacity: 0.7;
+}
+
+/* ── Result Card ── */
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 6px 16px 4px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.result-row:last-child {
+  border-bottom: none;
+}
+
+.result-row span {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.result-row strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.result-row.final {
+  background: var(--bg-card);
+  margin: 0 -16px;
+  padding: 15px 16px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: none;
+}
+.result-row.final span {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.result-row.final strong {
+  font-family: "Playfair Display", Georgia, serif;
+  color: var(--gold);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* ── Dark mode tweaks ── [data-theme="dark"] .calc-card,
+[data-theme="dark"] .result-card {
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="dark"] .hero-card {
+  background: linear-gradient(135deg, #c9943a 0%, #e8c47a 55%, #c9943a 100%);
+  box-shadow: 0 8px 28px rgba(201, 148, 58, 0.3);
+} */

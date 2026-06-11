@@ -1,0 +1,112 @@
+.bottom-nav {
+  position: fixed;
+  bottom: 12px; /* Bottom se thoda upar float karega premium look ke liye */
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 24px);
+  max-width: 500px; /* Mobile width par centered curved box dikhega */
+  height: 66px;
+  background: rgba(255, 255, 255, 0.85); /* Glassmorphism background */
+  backdrop-filter: blur(12px); /* Premium background blur */
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.06),
+    0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  border-radius: 20px; /* Smooth rounded corners */
+  padding: 0 6px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+}
+
+/* Dark Mode handling (Agar aapke tokens support karte hain) */
+[data-theme="dark"] .bottom-nav {
+  background: rgba(20, 20, 25, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.bottom-nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.bottom-nav-container::-webkit-scrollbar {
+  display: none;
+}
+
+.nav-item {
+  text-decoration: none;
+  color: #71717a; /* Subtle neutral gray */
+  flex: 1;
+  min-width: 52px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 0;
+  width: 100%;
+  height: 52px;
+  cursor: pointer;
+  color: inherit;
+  transition: color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.nav-btn span {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* Active State Colors */
+.nav-btn.active {
+  color: #4f46e5; /* Royal Premium Indigo / Aap apne brand color se replace kar sakte hain */
+}
+
+[data-theme="dark"] .nav-btn.active {
+  color: #818cf8;
+}
+
+/* Premium active container/pill design */
+.nav-pill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 4px;
+  right: 4px;
+  background: linear-gradient(
+    135deg,
+    rgba(79, 70, 229, 0.08) 0%,
+    rgba(79, 70, 229, 0.03) 100%
+  );
+  border-radius: 14px;
+  z-index: -1;
+  border: 1px solid rgba(79, 70, 229, 0.06);
+}
+
+[data-theme="dark"] .nav-pill {
+  background: rgba(129, 140, 248, 0.1);
+  border: 1px solid rgba(129, 140, 248, 0.15);
+}
