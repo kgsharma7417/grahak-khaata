@@ -5,8 +5,13 @@
    PRINT STYLES — Hindi text PDF mein sahi aaye
 ══════════════════════════════════════════════════ */
 @media print {
-  /* Sirf print area dikhao */
-  body > *:not(.bills-page) {
+  /* FIX #16: pehle `body > *:not(.bills-page)` use ho raha tha,
+     jo tabhi kaam karta jab .bills-page seedha <body> ka child ho.
+     React apps mein usually #root jaisa wrapper hota hai, isliye
+     ye selector kabhi match hi nahi karta tha.
+     Naya selector: .bills-page aur uske andar ke elements ke
+     bina, baaki SAB kuch (kisi bhi depth pe) hide ho jaayega. */
+  body *:not(.bills-page):not(.bills-page *) {
     display: none !important;
   }
 
@@ -48,17 +53,20 @@
     background: #fff !important;
   }
 
-  /* Buttons print mein nahi dikhenge */
+  /* FIX #17: `.bhc-panel` ko ab yahan hide nahi kar rahe, kyunki
+     `.bhc-expanded` usi ke andar hota hai — pehle parent hidden
+     hone ki wajah se expanded content kabhi print mein dikhta
+     hi nahi tha. Sirf action buttons hide karo. */
   .phc-action-bar,
   .bhc-actions,
   .bhc-btn,
   .phc-btn,
-  .phc-tool-btn,
-  .bhc-panel {
+  .phc-tool-btn {
     display: none !important;
   }
 
   /* Expanded section hamesha visible */
+  .bhc-panel,
   .bhc-expanded {
     display: block !important;
     height: auto !important;
@@ -134,19 +142,27 @@
   background: var(--bg-input) !important;
   color: var(--text-primary) !important;
   border-color: var(--border-color) !important;
-  color-scheme: unset;
+  /* FIX #13: `color-scheme: unset;` yahan se hata diya gaya hai.
+     Pehle `.bills-page .bill-input` (specificity 0,2,0) ka
+     `color-scheme: unset` `.bill-input { color-scheme: dark }`
+     (specificity 0,1,0) ko hamesha override kar deta tha,
+     isliye native date-picker dark theme mein kaam nahi karta tha. */
 }
 
-.bills-page .bill-input::placeholder {
-  color: var(--text-secondary) !important;
-}
+/* FIX #15: placeholder color yahan se hata diya — neeche
+   `.bill-input::placeholder { color: var(--text-muted) }` hi
+   single source of truth hai. Pehle `!important` ke saath yahan
+   duplicate rule hone ki wajah se neeche wala rule dead code tha. */
 
 .bills-page .type-row {
   background: var(--bg-input) !important;
 }
 
+/* FIX #14: `!important` hata diya — pehle ye hamesha jeet jaata
+   tha aur neeche `.type-btn:not(.active):hover { color: var(--text-primary) }`
+   kabhi apply nahi hota tha (hover par color change nahi hota tha). */
 .bills-page .type-btn:not(.active) {
-  color: var(--text-secondary) !important;
+  color: var(--text-secondary);
 }
 
 .bills-page .card-title,
@@ -204,6 +220,17 @@
   --shadow-gold: 0 12px 32px rgba(184, 134, 11, 0.25);
   --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
   --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* FIX #11/#12: "Global tokens" section `--bg-primary` aur
+     `--border-color` use kar rahi thi, jo kahin defined nahi the.
+     Undefined CSS variable `!important` ke saath use hone par
+     property apne initial value (transparent) pe chali jaati
+     hai — isse `.bills-page` ka background poora transparent ho
+     sakta tha (gradient + solid color dono override ho jaate).
+     Yahan dono ko existing tokens ke alias ke roop mein define
+     kar diya gaya hai taaki sab kuch consistent rahe. */
+  --bg-primary: var(--bg-page);
+  --border-color: var(--border);
 }
 
 *,
@@ -610,6 +637,20 @@
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.5px;
+}
+
+/* FIX: advance/change-due row (jab paid amount > total ho) ke
+   liye styling — Bills.jsx ab `advanceAmount` prop deta hai. */
+.advance-row {
+  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(74, 222, 128, 0.22);
+}
+
+.advance-value {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--success);
 }
 
 .generate-btn {

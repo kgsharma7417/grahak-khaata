@@ -1,18 +1,6 @@
-/**
- * Girvi.js — FIXED VERSION
- *
- * CHANGES:
- * - FIX #5: addGirvi ab synchronous hai — seedha ID milti hai
- *   Pehle: const newId = await addGirvi(entry) → Firebase ka wait
- *   Ab:    const newId = addGirvi(entry)        → local se turant ID
- *
- * - Baaki sab same hai — sirf handleSave mein await hata diya addGirvi se
- */
-
 import "./Girvi.css";
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
 import {
   CalendarDays,
   IndianRupee,
@@ -39,7 +27,6 @@ import {
   AlertTriangle,
   Clock,
 } from "lucide-react";
-import "./Girvi.css";
 import { useStore } from "../store/useStore";
 import { compressImage } from "../utils/imageUtils";
 import { saveImage, deleteImages, loadAllImages } from "../utils/imageDB";
@@ -1482,23 +1469,25 @@ function FilterTabs({ active, onChange, counts }) {
     </div>
   );
 }
-
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function Girvi() {
-  // FIX #1 & #5: Ab ye sab synchronous local functions hain
   const addGirvi = useStore((state) => state.addGirvi);
   const updateGirvi = useStore((state) => state.updateGirvi);
   const deleteGirvi = useStore((state) => state.deleteGirvi);
   const girviRecords = useStore((state) => state.girvi);
 
-  const records = Array.isArray(girviRecords)
-    ? [...girviRecords].sort(
-        (a, b) => new Date(b.date || 0) - new Date(a.date || 0),
-      )
-    : [];
+  // FIX: sorted records memoized — recompute only when girviRecords changes
+  const records = useMemo(() => {
+    return Array.isArray(girviRecords)
+      ? [...girviRecords].sort(
+          (a, b) => new Date(b.date || 0) - new Date(a.date || 0),
+        )
+      : [];
+  }, [girviRecords]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [lightboxSrc, setLightboxSrc] = useState(null);
   const [filter, setFilter] = useState("all");
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -1507,6 +1496,19 @@ export default function Girvi() {
   const [imagesLoading, setImagesLoading] = useState(true);
   const { toasts, addToast, removeToast } = useToast();
   const loadedIdsRef = useRef(new Set());
+
+  // FIX: debounce search input so filtering doesn't run on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 150);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // FIX: stable string of ids — avoids .map().join() being recreated as a
+  // "new" dependency every render purely due to array identity changes
+  const recordIdsKey = useMemo(
+    () => records.map((r) => String(r.id)).join(","),
+    [records],
+  );
 
   useEffect(() => {
     if (records.length === 0) {
@@ -1525,39 +1527,68 @@ export default function Girvi() {
       allIds.forEach((id) => loadedIdsRef.current.add(id));
       setImagesLoading(false);
     });
-  }, [records.map((r) => String(r.id)).join(",")]);
+  }, [recordIdsKey]);
 
-  const filteredRecords = records.filter((r) => {
-    const q = search.toLowerCase();
-    const matchSearch =
-      (r.name || "").toLowerCase().includes(q) ||
-      (r.mobile || "").includes(q) ||
-      (r.village || "").toLowerCase().includes(q) ||
-      (r.item || "").toLowerCase().includes(q);
-    const rem = remaining(r);
-    const isCleared = rem === 0 && totalPaid(r) > 0;
-    const isOverdue = !isCleared && daysSince(r.date) >= 90;
-    if (filter === "active") return matchSearch && !isCleared;
-    if (filter === "cleared") return matchSearch && isCleared;
-    if (filter === "overdue") return matchSearch && isOverdue;
-    return matchSearch;
-  });
+  // FIX: compute calcInterest/totalPaid/remaining/daysSince/isCleared ONCE
+  // per record per records-change, instead of recalculating repeatedly
+  // inside filter + counts + render.
+  const recordStats = useMemo(() => {
+    const map = new Map();
+    for (const r of records) {
+      const interest = calcInterest(r);
+      const paid = totalPaid(r);
+      const rem = Math.max(0, safeNum(r.amount) + interest - paid);
+      const isCleared = rem === 0 && paid > 0;
+      const days = daysSince(r.date);
+      const isOverdue = !isCleared && days >= 90;
+      map.set(String(r.id), {
+        interest,
+        paid,
+        rem,
+        isCleared,
+        days,
+        isOverdue,
+      });
+    }
+    return map;
+  }, [records]);
 
-  const counts = {
-    all: records.length,
-    active: records.filter((r) => !(remaining(r) === 0 && totalPaid(r) > 0))
-      .length,
-    cleared: records.filter((r) => remaining(r) === 0 && totalPaid(r) > 0)
-      .length,
-    overdue: records.filter(
-      (r) =>
-        !(remaining(r) === 0 && totalPaid(r) > 0) && daysSince(r.date) >= 90,
-    ).length,
-  };
+  // FIX: memoized filtering using debouncedSearch + precomputed stats
+  const filteredRecords = useMemo(() => {
+    const q = debouncedSearch.toLowerCase();
+    return records.filter((r) => {
+      const matchSearch =
+        (r.name || "").toLowerCase().includes(q) ||
+        (r.mobile || "").includes(q) ||
+        (r.village || "").toLowerCase().includes(q) ||
+        (r.item || "").toLowerCase().includes(q);
+      if (!matchSearch) return false;
+      const stats = recordStats.get(String(r.id));
+      if (filter === "active") return !stats.isCleared;
+      if (filter === "cleared") return stats.isCleared;
+      if (filter === "overdue") return stats.isOverdue;
+      return true;
+    });
+  }, [records, debouncedSearch, filter, recordStats]);
 
-  // ── FIX #5: addGirvi ab synchronous — no await, seedha ID milti hai ──
+  // FIX: memoized counts using precomputed stats — single pass instead of
+  // multiple full-array .filter() calls each calling remaining/totalPaid again
+  const counts = useMemo(() => {
+    let active = 0,
+      cleared = 0,
+      overdue = 0;
+    for (const r of records) {
+      const stats = recordStats.get(String(r.id));
+      if (stats.isCleared) cleared++;
+      else {
+        active++;
+        if (stats.isOverdue) overdue++;
+      }
+    }
+    return { all: records.length, active, cleared, overdue };
+  }, [records, recordStats]);
+
   const handleSave = async (entry, custImg, itemImg) => {
-    // Seedha ID milti hai — no await, no fallback needed
     const newId = addGirvi(entry);
     const idStr = String(newId);
 

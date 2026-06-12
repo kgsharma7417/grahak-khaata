@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import {
   MessageCircle,
   ChevronDown,
@@ -8,6 +8,7 @@ import {
   Download,
   Tag,
   Clock,
+  X,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -18,13 +19,23 @@ export default function BillHistoryCard({ bill }) {
   const deleteBill = useStore((s) => s.deleteBill);
   const applyDiscount = useStore((s) => s.applyDiscount);
 
-  const [expanded, setExpanded] = useState(false);
-  const [showPayForm, setShowPayForm] = useState(false);
-  const [showDiscount, setShowDiscount] = useState(false);
+  /* ── Panel state: null | "pay" | "discount" | "details" ── */
+  const [activePanel, setActivePanel] = useState(null);
+  const togglePanel = (name) =>
+    setActivePanel((prev) => (prev === name ? null : name));
+
   const [payAmt, setPayAmt] = useState("");
   const [payNote, setPayNote] = useState("");
   const [discountAmt, setDiscountAmt] = useState("");
   const [pdfGenerating, setPdfGenerating] = useState(false);
+
+  /* ── Loading states for async actions ── */
+  const [deletingBill, setDeletingBill] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [savingDiscount, setSavingDiscount] = useState(false);
+
+  /* ── Custom delete confirm modal ── */
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     setDiscountAmt(bill.discount > 0 ? String(bill.discount) : "");
@@ -42,25 +53,18 @@ export default function BillHistoryCard({ bill }) {
     return new Date(ms).toLocaleDateString("en-IN");
   };
 
-  // ── HTML2CANVAS PDF — Proper Hindi Support ──────────────────────────
+  /* ── PDF Download ── */
   const downloadPDF = async () => {
     if (pdfGenerating) return;
     setPdfGenerating(true);
 
     try {
-      // Hidden container banate hain jisme poora bill HTML hoga
       const container = document.createElement("div");
       container.style.cssText = `
-        position: fixed;
-        left: -9999px;
-        top: 0;
-        width: 595px;
-        background: white;
+        position: fixed; left: -9999px; top: 0;
+        width: 595px; background: white;
         font-family: 'Noto Sans Devanagari', 'Mangal', Arial, sans-serif;
-        font-size: 13px;
-        color: #1c1c1c;
-        padding: 0;
-        margin: 0;
+        font-size: 13px; color: #1c1c1c; padding: 0; margin: 0;
       `;
 
       const productRows = (bill.products || [])
@@ -70,174 +74,112 @@ export default function BillHistoryCard({ bill }) {
               Number(p.making || 0)) *
             Number(p.qty || 1);
           return `
-          <tr style="border-bottom: 1px dashed #e5e7eb;">
-            <td style="padding: 8px 10px;">
-              ${p.item || "सामान"}
-              <span style="font-size:11px; color:#6b7280; margin-left:4px;">(${p.type === "gold" ? "सोना" : "चांदी"})</span>
-            </td>
-            <td style="padding: 8px 10px; text-align:center;">${p.weight || 0}g</td>
-            <td style="padding: 8px 10px; text-align:center;">₹${Number(p.rate || 0).toLocaleString("en-IN")}</td>
-            <td style="padding: 8px 10px; text-align:center;">${p.qty || 1}</td>
-            <td style="padding: 8px 10px; text-align:right; font-weight:700;">₹${Math.round(lt).toLocaleString("en-IN")}</td>
-          </tr>
-          ${
-            Number(p.making) > 0
-              ? `<tr><td colspan="5" style="font-size:11px; color:#9ca3af; padding: 2px 10px 6px;">
-                मेकिंग चार्ज: ₹${Number(p.making).toLocaleString("en-IN")}
-              </td></tr>`
-              : ""
-          }
-        `;
+            <tr style="border-bottom: 1px dashed #e5e7eb;">
+              <td style="padding: 8px 10px;">
+                ${p.item || "सामान"}
+                <span style="font-size:11px;color:#6b7280;margin-left:4px;">(${p.type === "gold" ? "सोना" : "चांदी"})</span>
+              </td>
+              <td style="padding:8px 10px;text-align:center;">${p.weight || 0}g</td>
+              <td style="padding:8px 10px;text-align:center;">₹${Number(p.rate || 0).toLocaleString("en-IN")}</td>
+              <td style="padding:8px 10px;text-align:center;">${p.qty || 1}</td>
+              <td style="padding:8px 10px;text-align:right;font-weight:700;">₹${Math.round(lt).toLocaleString("en-IN")}</td>
+            </tr>
+            ${Number(p.making) > 0 ? `<tr><td colspan="5" style="font-size:11px;color:#9ca3af;padding:2px 10px 6px;">मेकिंग चार्ज: ₹${Number(p.making).toLocaleString("en-IN")}</td></tr>` : ""}
+          `;
         })
         .join("");
 
       const paymentRows =
         (bill.paymentHistory || []).length === 0
-          ? `<tr><td colspan="3" style="padding:10px; color:#9ca3af; font-size:12px;">अभी तक कोई भुगतान दर्ज नहीं है</td></tr>`
+          ? `<tr><td colspan="4" style="padding:10px;color:#9ca3af;font-size:12px;">अभी तक कोई भुगतान दर्ज नहीं है</td></tr>`
           : (bill.paymentHistory || [])
               .map(
                 (ph, i) => `
-            <tr style="border-bottom:1px solid #f3f4f6;">
-              <td style="padding:7px 10px;">${i + 1}.</td>
-              <td style="padding:7px 10px; color:#166534; font-weight:600;">₹${Number(ph.amount).toLocaleString("en-IN")}</td>
-              <td style="padding:7px 10px;">${new Date(ph.date).toLocaleDateString("en-IN")}</td>
-              <td style="padding:7px 10px; color:#9ca3af; font-size:11px;">${ph.note ? ph.note : "—"}</td>
-            </tr>
-          `,
+                <tr style="border-bottom:1px solid #f3f4f6;">
+                  <td style="padding:7px 10px;">${i + 1}.</td>
+                  <td style="padding:7px 10px;color:#166534;font-weight:600;">₹${Number(ph.amount).toLocaleString("en-IN")}</td>
+                  <td style="padding:7px 10px;">${new Date(ph.date).toLocaleDateString("en-IN")}</td>
+                  <td style="padding:7px 10px;color:#9ca3af;font-size:11px;">${ph.note || "—"}</td>
+                </tr>`,
               )
               .join("");
 
       container.innerHTML = `
-        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
-
-        <div style="background:#1c1c1c; padding:22px 30px; text-align:center;">
-          <div style="color:#FFD700; font-size:22px; font-weight:700; letter-spacing:1px;">कृष्ण गोपाल ज्वेलर्स</div>
-          <div style="color:#d1d5db; font-size:12px; margin-top:5px;"> ज्वेलरी बिलिंग इनवॉइस</div>
+        <div style="background:#1c1c1c;padding:22px 30px;text-align:center;">
+          <div style="color:#FFD700;font-size:22px;font-weight:700;letter-spacing:1px;">कृष्ण गोपाल ज्वेलर्स</div>
+          <div style="color:#d1d5db;font-size:12px;margin-top:5px;">ज्वेलरी बिलिंग इनवॉइस</div>
         </div>
-
-        <div style="border-left:3px solid #DAA520; border-right:3px solid #DAA520; border-bottom:3px solid #DAA520; padding:20px 30px;">
-
-          <!-- Status Stamp -->
-          <div style="text-align:right; margin-bottom:-10px;">
-            <span style="
-              display:inline-block;
-              border: 3px double ${isPaid ? "#16a34a" : "#dc2626"};
-              color: ${isPaid ? "#16a34a" : "#dc2626"};
-              font-size:15px; font-weight:900;
-              padding: 4px 16px;
-              border-radius:6px;
-              opacity:0.6;
-              letter-spacing:2px;
-              transform: rotate(-5deg);
-              display:inline-block;
-            ">
+        <div style="border-left:3px solid #DAA520;border-right:3px solid #DAA520;border-bottom:3px solid #DAA520;padding:20px 30px;">
+          <div style="text-align:right;margin-bottom:-10px;">
+            <span style="display:inline-block;border:3px double ${isPaid ? "#16a34a" : "#dc2626"};color:${isPaid ? "#16a34a" : "#dc2626"};font-size:15px;font-weight:900;padding:4px 16px;border-radius:6px;opacity:0.6;letter-spacing:2px;transform:rotate(-5deg);">
               ${isPaid ? "✓ PAID" : "⏳ PENDING"}
             </span>
           </div>
-
-          <!-- Customer Details -->
-          <div style="background:#f9fafb; border-radius:10px; padding:14px 18px; margin:14px 0;">
-            <div style="font-size:11px; font-weight:700; color:#6b7280; letter-spacing:1.5px; margin-bottom:10px;">
-              ग्राहक का विवरण (CUSTOMER DETAILS)
-            </div>
-            <table style="width:100%; font-size:13px; border-collapse:collapse;">
+          <div style="background:#f9fafb;border-radius:10px;padding:14px 18px;margin:14px 0;">
+            <div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;margin-bottom:10px;">ग्राहक का विवरण (CUSTOMER DETAILS)</div>
+            <table style="width:100%;font-size:13px;border-collapse:collapse;">
               <tr>
-                <td style="padding:3px 0; color:#374151; width:50%;">
-                  <span style="color:#9ca3af;">ग्राहक का नाम: </span>
-                  <strong>${bill.customer?.name || "—"}</strong>
-                </td>
-                <td style="padding:3px 0; color:#374151;">
-                  <span style="color:#9ca3af;">दिनांक: </span>
-                  <strong>${formatDate(bill.createdAt)}</strong>
-                </td>
+                <td style="padding:3px 0;color:#374151;width:50%;"><span style="color:#9ca3af;">ग्राहक का नाम: </span><strong>${bill.customer?.name || "—"}</strong></td>
+                <td style="padding:3px 0;color:#374151;"><span style="color:#9ca3af;">दिनांक: </span><strong>${formatDate(bill.createdAt)}</strong></td>
               </tr>
               <tr>
-                <td style="padding:3px 0; color:#374151;">
-                  <span style="color:#9ca3af;">मोबाइल: </span>${bill.customer?.mobile || "—"}
-                </td>
-                ${
-                  bill.customer?.village
-                    ? `<td style="padding:3px 0; color:#374151;">
-                    <span style="color:#9ca3af;">गांव: </span>${bill.customer.village}
-                  </td>`
-                    : "<td></td>"
-                }
+                <td style="padding:3px 0;color:#374151;"><span style="color:#9ca3af;">मोबाइल: </span>${bill.customer?.mobile || "—"}</td>
+                ${bill.customer?.village ? `<td style="padding:3px 0;color:#374151;"><span style="color:#9ca3af;">गांव: </span>${bill.customer.village}</td>` : "<td></td>"}
               </tr>
             </table>
           </div>
-
-          <!-- Products Table -->
-          <div style="font-size:11px; font-weight:700; color:#6b7280; letter-spacing:1.5px; margin:16px 0 8px;">
-            सामान का विवरण (ITEMS)
-          </div>
-          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+          <div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;margin:16px 0 8px;">सामान का विवरण (ITEMS)</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead>
               <tr style="background:#f3f4f6;">
-                <th style="padding:8px 10px; text-align:left; font-weight:600;">सामान (Item)</th>
-                <th style="padding:8px 10px; text-align:center; font-weight:600;">वजन</th>
-                <th style="padding:8px 10px; text-align:center; font-weight:600;">दर (Rate)</th>
-                <th style="padding:8px 10px; text-align:center; font-weight:600;">मात्रा</th>
-                <th style="padding:8px 10px; text-align:right; font-weight:600;">कुल राशि</th>
+                <th style="padding:8px 10px;text-align:left;font-weight:600;">सामान</th>
+                <th style="padding:8px 10px;text-align:center;font-weight:600;">वजन</th>
+                <th style="padding:8px 10px;text-align:center;font-weight:600;">दर</th>
+                <th style="padding:8px 10px;text-align:center;font-weight:600;">मात्रा</th>
+                <th style="padding:8px 10px;text-align:right;font-weight:600;">कुल</th>
               </tr>
             </thead>
             <tbody>${productRows}</tbody>
           </table>
-
-          <!-- Payment History -->
-          <div style="font-size:11px; font-weight:700; color:#6b7280; letter-spacing:1.5px; margin:18px 0 8px;">
-            भुगतान इतिहास (PAYMENT HISTORY)
-          </div>
-          <table style="width:100%; border-collapse:collapse; font-size:12px;">
+          <div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;margin:18px 0 8px;">भुगतान इतिहास (PAYMENT HISTORY)</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
             <thead>
               <tr style="background:#f3f4f6;">
-                <th style="padding:7px 10px; text-align:left; width:30px;">#</th>
-                <th style="padding:7px 10px; text-align:left;">जमा राशि</th>
-                <th style="padding:7px 10px; text-align:left;">दिनांक</th>
-                <th style="padding:7px 10px; text-align:left;">नोट</th>
+                <th style="padding:7px 10px;text-align:left;width:30px;">#</th>
+                <th style="padding:7px 10px;text-align:left;">जमा राशि</th>
+                <th style="padding:7px 10px;text-align:left;">दिनांक</th>
+                <th style="padding:7px 10px;text-align:left;">नोट</th>
               </tr>
             </thead>
             <tbody>${paymentRows}</tbody>
           </table>
-
-          <!-- Summary -->
-          <div style="background:#f9fafb; border-radius:10px; padding:14px 18px; margin-top:18px;">
-            <div style="display:flex; justify-content:space-between; padding:5px 0; font-size:13px;">
-              <span style="color:#6b7280;">कुल मूल्य (Total)</span>
+          <div style="background:#f9fafb;border-radius:10px;padding:14px 18px;margin-top:18px;">
+            <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;">
+              <span style="color:#6b7280;">कुल मूल्य</span>
               <span style="font-weight:600;">₹${billTotal.toLocaleString("en-IN")}</span>
             </div>
-            ${
-              discount > 0
-                ? `<div style="display:flex; justify-content:space-between; padding:5px 0; font-size:13px;">
-              <span style="color:#b45309;">छूट (Discount)</span>
-              <span style="font-weight:600; color:#b45309;">- ₹${discount.toLocaleString("en-IN")}</span>
-            </div>`
-                : ""
-            }
-            <div style="display:flex; justify-content:space-between; padding:5px 0; font-size:13px;">
-              <span style="color:#166534;">कुल जमा (Paid)</span>
-              <span style="font-weight:600; color:#166534;">₹${totalPaid.toLocaleString("en-IN")}</span>
+            ${discount > 0 ? `<div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;"><span style="color:#b45309;">छूट</span><span style="font-weight:600;color:#b45309;">-₹${discount.toLocaleString("en-IN")}</span></div>` : ""}
+            <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;">
+              <span style="color:#166534;">कुल जमा</span>
+              <span style="font-weight:600;color:#166534;">₹${totalPaid.toLocaleString("en-IN")}</span>
             </div>
-            <div style="border-top:1px solid #e5e7eb; margin-top:6px; padding-top:8px; display:flex; justify-content:space-between; font-size:15px; font-weight:700;">
-              <span style="color:${isPaid ? "#166534" : "#dc2626"};">शेष राशि (Due)</span>
+            <div style="border-top:1px solid #e5e7eb;margin-top:6px;padding-top:8px;display:flex;justify-content:space-between;font-size:15px;font-weight:700;">
+              <span style="color:${isPaid ? "#166534" : "#dc2626"};">शेष राशि</span>
               <span style="color:${isPaid ? "#166534" : "#dc2626"};">₹${remaining.toLocaleString("en-IN")}</span>
             </div>
-            <div style="text-align:center; margin-top:10px; font-size:13px; font-weight:700; color:${isPaid ? "#166534" : "#dc2626"};">
+            <div style="text-align:center;margin-top:10px;font-size:13px;font-weight:700;color:${isPaid ? "#166534" : "#dc2626"};">
               ${isPaid ? "✅ स्थिति: पूरा भुगतान प्राप्त हुआ" : "⏳ स्थिति: भुगतान बाकी है"}
             </div>
           </div>
-
-          <!-- Footer -->
-          <div style="text-align:center; margin-top:22px; padding-top:14px; border-top:1px solid #e5e7eb; font-size:11px; color:#9ca3af;">
+          <div style="text-align:center;margin-top:22px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;">
             हमारे यहाँ व्यापार करने के लिए धन्यवाद! — कृष्ण गोपाल ज्वेलर्स
           </div>
         </div>
       `;
 
       document.body.appendChild(container);
-
-      // Font load ka wait karo
       await document.fonts.ready;
-      await new Promise((r) => setTimeout(r, 700));
+      await new Promise((r) => setTimeout(r, 600));
 
       const canvas = await html2canvas(container, {
         scale: 2,
@@ -251,8 +193,6 @@ export default function BillHistoryCard({ bill }) {
       document.body.removeChild(container);
 
       const imgData = canvas.toDataURL("image/jpeg", 0.95);
-
-      // A4 PDF
       const pdf = new jsPDF({ unit: "mm", format: "a4" });
       const pageW = 210;
       const pageH = 297;
@@ -261,7 +201,6 @@ export default function BillHistoryCard({ bill }) {
       if (imgH <= pageH) {
         pdf.addImage(imgData, "JPEG", 0, 0, pageW, imgH);
       } else {
-        // Multi-page agar content zyada lamba ho
         let yOffset = 0;
         while (yOffset < imgH) {
           if (yOffset > 0) pdf.addPage();
@@ -273,20 +212,21 @@ export default function BillHistoryCard({ bill }) {
       const safeName = (bill.customer?.name || "Customer").replace(/\s+/g, "_");
       pdf.save(`KGJ_${safeName}_Invoice.pdf`);
     } catch (err) {
-      console.error("PDF generation error:", err);
+      console.error("PDF error:", err);
       alert("PDF generate karne mein problem aayi. Dobara try karein.");
     } finally {
       setPdfGenerating(false);
     }
   };
 
-  // ── WhatsApp ──────────────────────────────────────────────────────────
+  /* ── WhatsApp ── */
   const sendWhatsApp = () => {
     const raw = bill.customer?.mobile?.trim() || "";
-    const mobile = raw.replace(/^(\+91|91)/, "").replace(/[\s\-]/g, "");
-    if (!mobile || mobile.length !== 10) {
+    // Strip +91, 91 prefix, spaces, dashes
+    const mobile = raw.replace(/^(\+91|91|0)/, "").replace(/[\s\-]/g, "");
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
       alert(
-        `Mobile number sahi nahi hai: "${raw}"\n10 digit ka number chahiye.`,
+        `Mobile number sahi nahi hai: "${raw}"\n10 digit ka number chahiye (6-9 se shuru)।`,
       );
       return;
     }
@@ -345,8 +285,8 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
     );
   };
 
-  // ── Add Payment ───────────────────────────────────────────────────────
-  const handleAddPayment = () => {
+  /* ── Add Payment (async fixed) ── */
+  const handleAddPayment = async () => {
     const amt = Number(payAmt);
     if (!amt || amt <= 0) {
       alert("Sahi amount daalo");
@@ -356,14 +296,22 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
       alert(`Sirf ₹${remaining.toLocaleString("en-IN")} baaki hai.`);
       return;
     }
-    addPayment(bill.id, amt, payNote.trim());
-    setPayAmt("");
-    setPayNote("");
-    setShowPayForm(false);
+    setSavingPayment(true);
+    try {
+      await addPayment(bill.id, amt, payNote.trim());
+      setPayAmt("");
+      setPayNote("");
+      setActivePanel(null);
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Payment save karne mein problem aayi.");
+    } finally {
+      setSavingPayment(false);
+    }
   };
 
-  // ── Apply Discount ────────────────────────────────────────────────────
-  const handleDiscount = () => {
+  /* ── Apply Discount (async fixed) ── */
+  const handleDiscount = async () => {
     const d = Number(discountAmt);
     if (isNaN(d) || d < 0) {
       alert("Valid discount daalo");
@@ -373,22 +321,29 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
       alert("Discount total se zyada nahi ho sakta!");
       return;
     }
-    applyDiscount(bill.id, d);
-    setShowDiscount(false);
+    setSavingDiscount(true);
+    try {
+      await applyDiscount(bill.id, d);
+      setActivePanel(null);
+    } catch (err) {
+      console.error("Discount error:", err);
+      alert("Discount apply karne mein problem aayi.");
+    } finally {
+      setSavingDiscount(false);
+    }
   };
 
-  // ── Delete Bill ───────────────────────────────────────────────────────
-  const handleDelete = () => {
-    const confirmed = window.confirm(
-      `"${bill.customer?.name || "Is bill"}" ko permanently delete karna chahte ho?\n\nYe action undo nahi hoga.`,
-    );
-    if (confirmed) {
-      try {
-        deleteBill(bill.id);
-      } catch (err) {
-        console.error("Delete error:", err);
-        alert("Delete karne mein problem aayi. Dobara try karein.");
-      }
+  /* ── Delete Bill (async fixed, custom modal) ── */
+  const handleDelete = async () => {
+    setDeletingBill(true);
+    try {
+      await deleteBill(bill.id);
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Delete karne mein problem aayi. Dobara try karein.");
+    } finally {
+      setDeletingBill(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -421,180 +376,125 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
           border-color: #DAA520;
         }
         .premium-stamp {
-          position: absolute;
-          top: 14px;
-          right: 12px;
+          position: absolute; top: 14px; right: 12px;
           transform: rotate(12deg);
-          border: 2.5px double #22c55e;
-          color: #22c55e;
-          font-weight: 900;
-          font-size: 12px;
-          padding: 4px 14px;
-          opacity: 0.3;
-          border-radius: 6px;
-          pointer-events: none;
+          border: 2.5px double #22c55e; color: #22c55e;
+          font-weight: 900; font-size: 12px; padding: 4px 14px;
+          opacity: 0.3; border-radius: 6px; pointer-events: none;
           letter-spacing: 2px;
         }
-        .phc-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 18px;
-        }
-        .phc-client-name {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 1.35rem;
-          color: var(--charcoal);
-          margin: 3px 0 4px;
-          line-height: 1.2;
-        }
-        .phc-date {
-          font-size: 10px;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
-          color: #aaa;
-        }
-        .phc-remaining-amt {
-          font-size: 1.65rem;
-          font-weight: 800;
-          margin: 2px 0;
-          line-height: 1.1;
-        }
-        .text-gold {
-          background: var(--gold-gradient);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
+        .phc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+        .phc-client-name { font-family: 'Playfair Display', Georgia, serif; font-size: 1.35rem; color: var(--charcoal); margin: 3px 0 4px; line-height: 1.2; }
+        .phc-date { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #aaa; }
+        .phc-remaining-amt { font-size: 1.65rem; font-weight: 800; margin: 2px 0; line-height: 1.1; }
+        .text-gold { background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .text-red { color: #dc2626; }
         .phc-total-tag { font-size: 11px; color: #888; }
-        .phc-action-bar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 14px;
-          border-top: 1px solid #f0f0f0;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
+        .phc-action-bar { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid #f0f0f0; flex-wrap: wrap; gap: 8px; }
         .phc-main-actions { display: flex; gap: 8px; }
-        .phc-btn {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 9px 16px;
-          border-radius: 10px;
-          font-weight: 600;
-          font-size: 13px;
-          cursor: pointer;
-          border: none;
-          transition: all 0.2s;
-        }
+        .phc-btn { display: flex; align-items: center; gap: 6px; padding: 9px 16px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; border: none; transition: all 0.2s; }
         .luxury-wa { background: #f0fdf4; color: #166534; }
         .luxury-wa:hover { background: #dcfce7; }
         .luxury-pdf { background: var(--charcoal); color: white; }
         .luxury-pdf:hover { background: #333; }
         .luxury-pdf:disabled { background: #777; cursor: not-allowed; opacity: 0.8; }
         .phc-tool-actions { display: flex; gap: 7px; }
-        .phc-tool-btn {
-          background: #f5f5f5;
-          border: none;
-          width: 36px;
-          height: 36px;
-          border-radius: 9px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #666;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
+        .phc-tool-btn { background: #f5f5f5; border: none; width: 36px; height: 36px; border-radius: 9px; display: flex; align-items: center; justify-content: center; color: #666; cursor: pointer; transition: all 0.2s; }
         .phc-tool-btn:hover { background: #ebebeb; }
         .phc-tool-btn.active { background: var(--gold); color: white; }
         .phc-tool-btn.danger { color: #dc2626; }
         .phc-tool-btn.danger:hover { background: #fee2e2; color: #b91c1c; }
-        .bhc-panel {
-          background: #fafafa;
-          padding: 14px;
-          border-radius: 12px;
-          margin-top: 12px;
-          border: 1px solid #eee;
-          overflow: hidden;
-        }
+        .phc-tool-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .bhc-panel { background: #fafafa; padding: 14px; border-radius: 12px; margin-top: 12px; border: 1px solid #eee; overflow: hidden; }
         .bhc-form-grid { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
         .bhc-form-grid .bill-input { flex: 1; min-width: 120px; }
-        .bill-input {
-          padding: 8px 12px;
-          border: 1.5px solid #ddd;
-          border-radius: 8px;
-          width: 100%;
-          font-size: 13px;
-          outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          box-sizing: border-box;
-        }
-        .bill-input:focus {
-          border-color: var(--gold);
-          box-shadow: 0 0 0 3px rgba(218,165,32,0.12);
-        }
-        .bhc-save-btn {
-          background: var(--charcoal);
-          color: white;
-          border: none;
-          padding: 10px;
-          border-radius: 8px;
-          cursor: pointer;
-          width: 100%;
-          font-size: 13px;
-          font-weight: 600;
-          margin-top: 6px;
-          transition: background 0.2s;
-        }
+        .bill-input { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; width: 100%; font-size: 13px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
+        .bill-input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(218,165,32,0.12); }
+        .bhc-save-btn { background: var(--charcoal); color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 13px; font-weight: 600; margin-top: 6px; transition: background 0.2s; }
         .bhc-save-btn:hover { background: #333; }
-        .bhc-expanded {
-          margin-top: 14px;
-          border-top: 1px solid #eee;
-          padding-top: 14px;
-          overflow: hidden;
-        }
-        .bhc-product-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          padding: 8px 0;
-          border-bottom: 1px dashed #eee;
-          font-size: 13px;
-          gap: 10px;
-        }
-        .bhc-pay-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 7px 0;
-          font-size: 13px;
-          color: #555;
-          border-bottom: 1px solid #f5f5f5;
-        }
-        .bhc-summary-bar {
-          background: #f8f8f8;
-          padding: 12px;
-          border-radius: 8px;
-          margin-top: 14px;
-          display: flex;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 8px;
-          font-weight: 700;
-          font-size: 13px;
-        }
+        .bhc-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .bhc-expanded { margin-top: 14px; border-top: 1px solid #eee; padding-top: 14px; overflow: hidden; }
+        .bhc-product-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 13px; gap: 10px; }
+        .bhc-pay-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; color: #555; border-bottom: 1px solid #f5f5f5; }
+        .bhc-summary-bar { background: #f8f8f8; padding: 12px; border-radius: 8px; margin-top: 14px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-weight: 700; font-size: 13px; }
         .hint-text { font-size: 11px; color: #888; margin: 4px 0 8px; }
+
+        /* Delete Modal */
+        .delete-modal-overlay {
+          position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+          z-index: 9999; display: flex; align-items: center; justify-content: center;
+          padding: 20px;
+        }
+        .delete-modal {
+          background: white; border-radius: 20px; padding: 28px 24px;
+          max-width: 360px; width: 100%; box-shadow: 0 24px 60px rgba(0,0,0,0.2);
+          text-align: center;
+        }
+        .delete-modal-icon { font-size: 42px; margin-bottom: 12px; }
+        .delete-modal h3 { font-size: 18px; font-weight: 700; color: #1c1c1c; margin: 0 0 8px; }
+        .delete-modal p { font-size: 14px; color: #666; margin: 0 0 24px; line-height: 1.5; }
+        .delete-modal-btns { display: flex; gap: 10px; }
+        .btn-cancel { flex: 1; padding: 12px; border: 1.5px solid #ddd; border-radius: 12px; background: white; font-size: 14px; font-weight: 600; cursor: pointer; color: #555; transition: all 0.2s; }
+        .btn-cancel:hover { background: #f5f5f5; }
+        .btn-delete-confirm { flex: 1; padding: 12px; border: none; border-radius: 12px; background: #dc2626; color: white; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-delete-confirm:hover { background: #b91c1c; }
+        .btn-delete-confirm:disabled { opacity: 0.6; cursor: not-allowed; }
+
         @media (max-width: 600px) {
           .phc-header { flex-direction: column; gap: 10px; }
           .phc-btn span { display: none; }
         }
       `}</style>
 
+      {/* Custom Delete Confirm Modal */}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <motion.div
+            className="delete-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => !deletingBill && setShowDeleteModal(false)}
+          >
+            <motion.div
+              className="delete-modal"
+              initial={{ scale: 0.85, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 340, damping: 24 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="delete-modal-icon">🗑️</div>
+              <h3>Bill Delete Karen?</h3>
+              <p>
+                <strong>{bill.customer?.name || "Is bill"}</strong> ka bill
+                permanently delete ho jaayega.
+                <br />
+                Yeh action undo nahi hoga।
+              </p>
+              <div className="delete-modal-btns">
+                <button
+                  className="btn-cancel"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={deletingBill}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn-delete-confirm"
+                  onClick={handleDelete}
+                  disabled={deletingBill}
+                >
+                  {deletingBill ? "Delete ho raha hai..." : "Haan, Delete Karo"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.div
-        className={`premium-history-card ${isPaid ? "is-cleared" : ""}`}
+        className="premium-history-card"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -10 }}
@@ -614,7 +514,6 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
               {(bill.products || []).length !== 1 ? "s" : ""}
             </p>
           </div>
-
           <div style={{ textAlign: "right" }}>
             <span className="phc-total-tag">Balance Due</span>
             <h2
@@ -647,43 +546,34 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
           <div className="phc-tool-actions">
             {!isPaid && (
               <button
-                className={`phc-tool-btn ${showPayForm ? "active" : ""}`}
+                className={`phc-tool-btn ${activePanel === "pay" ? "active" : ""}`}
                 title="Payment Add करें"
-                onClick={() => {
-                  setShowPayForm(!showPayForm);
-                  setExpanded(false);
-                  setShowDiscount(false);
-                }}
+                onClick={() => togglePanel("pay")}
               >
                 <Plus size={15} />
               </button>
             )}
             {!isPaid && (
               <button
-                className={`phc-tool-btn ${showDiscount ? "active" : ""}`}
+                className={`phc-tool-btn ${activePanel === "discount" ? "active" : ""}`}
                 title="Discount लगाएं"
-                onClick={() => {
-                  setShowDiscount(!showDiscount);
-                  setShowPayForm(false);
-                  setExpanded(false);
-                }}
+                onClick={() => togglePanel("discount")}
               >
                 <Tag size={15} />
               </button>
             )}
             <button
-              className={`phc-tool-btn ${expanded ? "active" : ""}`}
+              className={`phc-tool-btn ${activePanel === "details" ? "active" : ""}`}
               title="Details देखें"
-              onClick={() => {
-                setExpanded(!expanded);
-                setShowPayForm(false);
-                setShowDiscount(false);
-              }}
+              onClick={() => togglePanel("details")}
             >
               <ChevronDown
                 size={17}
                 style={{
-                  transform: expanded ? "rotate(180deg)" : "rotate(0deg)",
+                  transform:
+                    activePanel === "details"
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
                   transition: "transform 0.2s",
                 }}
               />
@@ -691,7 +581,8 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
             <button
               className="phc-tool-btn danger"
               title="Bill Delete करें"
-              onClick={handleDelete}
+              onClick={() => setShowDeleteModal(true)}
+              disabled={deletingBill}
             >
               <Trash2 size={15} />
             </button>
@@ -700,7 +591,7 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
 
         {/* Payment Form */}
         <AnimatePresence>
-          {showPayForm && (
+          {activePanel === "pay" && (
             <motion.div
               className="bhc-panel"
               initial={{ height: 0, opacity: 0 }}
@@ -735,8 +626,12 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
                   onKeyDown={(e) => e.key === "Enter" && handleAddPayment()}
                 />
               </div>
-              <button className="bhc-save-btn" onClick={handleAddPayment}>
-                Save Payment ✦
+              <button
+                className="bhc-save-btn"
+                onClick={handleAddPayment}
+                disabled={savingPayment}
+              >
+                {savingPayment ? "Save ho raha hai..." : "Save Payment ✦"}
               </button>
             </motion.div>
           )}
@@ -744,7 +639,7 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
 
         {/* Discount Form */}
         <AnimatePresence>
-          {showDiscount && (
+          {activePanel === "discount" && (
             <motion.div
               className="bhc-panel"
               initial={{ height: 0, opacity: 0 }}
@@ -779,8 +674,9 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
                 className="bhc-save-btn"
                 style={{ background: "#DAA520" }}
                 onClick={handleDiscount}
+                disabled={savingDiscount}
               >
-                Apply Discount ✦
+                {savingDiscount ? "Apply ho raha hai..." : "Apply Discount ✦"}
               </button>
             </motion.div>
           )}
@@ -788,7 +684,7 @@ ${isPaid ? "✅ आपका पूरा बिल जमा हो चुक�
 
         {/* Expanded Details */}
         <AnimatePresence>
-          {expanded && (
+          {activePanel === "details" && (
             <motion.div
               className="bhc-expanded"
               initial={{ height: 0, opacity: 0 }}
